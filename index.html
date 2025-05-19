@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>For Alsa ❤️</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lora&display=swap');
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+      overflow-x: hidden;
+      font-family: 'Lora', serif;
+      color: #880e4f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #container {
+      text-align: center;
+      max-width: 660px;
+      width: 90%;
+      background: rgba(255 255 255 / 0.95);
+      border-radius: 20px;
+      padding: 2.8rem 3rem 3rem;
+      box-shadow: 0 12px 25px rgba(168, 78, 152, 0.3);
+      position: relative;
+      z-index: 15; /* above hearts */
+      user-select: none;
+      overflow: hidden; /* clip animated text */
+    }
+
+    h1, h2 {
+      font-family: 'Great Vibes', cursive;
+      margin: 0 0 1rem 0;
+      text-shadow: 2px 2px 8px #ad1457;
+      user-select: none;
+    }
+    h1 {
+      font-size: 3rem;
+    }
+    h2 {
+      font-size: 2.3rem;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      font-family: 'Lora', serif;
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 0.7rem 2.2rem;
+      margin: 0 15px;
+      border: none;
+      border-radius: 40px;
+      box-shadow: 0 6px 12px rgba(233, 30, 99, 0.5);
+      transition: background-color 0.25s ease-in-out, transform 0.2s ease-in-out;
+      background-color: #e91e63;
+      color: white;
+      user-select: none;
+      min-width: 100px;
+    }
+    button:hover, button:focus {
+      background-color: #ad1457;
+      transform: scale(1.1);
+      outline: none;
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+
+    #messageContainer {
+      font-size: 1.7rem;
+      line-height: 1.6;
+      color: #880e4f;
+      min-height: 110px;
+      font-family: 'Great Vibes', cursive;
+      user-select: text;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      position: relative;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Text fade fadeInOut animations with scale */
+    .messageLine {
+      opacity: 0;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      transform: scale(0.8);
+      animation-fill-mode: forwards;
+      animation-timing-function: ease-in-out;
+      color: #ad1457;
+      text-shadow: 2px 2px 8px #880e4f;
+      user-select: none;
+    }
+    .fadeInOut {
+      animation-name: fadeScaleInOut;
+      animation-duration: 5s;
+    }
+    @keyframes fadeScaleInOut {
+      0%   {opacity: 0; transform: scale(0.75);}
+      10%  {opacity: 1; transform: scale(1);}
+      80%  {opacity: 1; transform: scale(1);}
+      100% {opacity: 0; transform: scale(0.75);}
+    }
+
+    /* Heart shapes */
+    .heart {
+      position: fixed;
+      bottom: -60px;
+      background-color: #e91e63;
+      transform: rotate(-45deg);
+      animation: flyUp linear forwards;
+      opacity: 0.8;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px #e91e63);
+      z-index: 5;
+      border-radius: 10%;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      background-color: #e91e63;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: 0;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+    .heart::after {
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes flyUp {
+      0% {
+        transform: translateY(0) rotate(-45deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-900px) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    /* Background radiant pulsing effect when the message appears */
+    #container.active {
+      animation: pulseBg 5s ease-in-out infinite;
+      background: linear-gradient(135deg, #fde0ec, #f48fb1);
+    }
+    @keyframes pulseBg {
+      0%, 100% {
+        box-shadow: 0 0 30px 8px rgba(233, 30, 99, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 50px 16px rgba(236, 64, 122, 0.75);
+      }
+    }
+
+    /* Emoji style */
+    #emoji {
+      font-size: 3.9rem;
+      margin-bottom: 1.2rem;
+      user-select: none;
+      display: inline-block;
+      transition: transform 0.4s ease;
+    }
+
+    /* Mute/unmute button style */
+    #soundToggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #e91e63;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: white;
+      font-size: 1.7rem;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(233, 30, 99, 0.5);
+      transition: background-color 0.25s ease-in-out, transform 0.2s ease-in-out;
+      z-index: 20;
+    }
+    #soundToggle:hover, #soundToggle:focus {
+      background-color: #ad1457;
+      transform: scale(1.15);
+      outline: none;
+    }
+    #soundToggle:active {
+      transform: scale(0.95);
+    }
+
+    /* Floating small hearts in background */
+    .bg-heart {
+      position: fixed;
+      bottom: -30px;
+      background-color: #f48fb1;
+      transform: rotate(-45deg);
+      animation: flyUpBg linear forwards;
+      opacity: 0.6;
+      pointer-events: none;
+      filter: drop-shadow(0 0 4px #f48fb1);
+      z-index: 1;
+      border-radius: 10%;
+      animation-timing-function: ease-in;
+    }
+    .bg-heart::before,
+    .bg-heart::after {
+      content: "";
+      position: absolute;
+      background-color: #f48fb1;
+      border-radius: 50%;
+    }
+    .bg-heart::before {
+      top: 0;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+    .bg-heart::after {
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes flyUpBg {
+      0% {
+        transform: translateY(0) rotate(-45deg);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(-1200px) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    /* Background beating hearts */
+    .beat-heart {
+      position: fixed;
+      border-radius: 10%;
+      background-color: rgba(233, 30, 99, 0.15);
+      filter: drop-shadow(0 0 8px rgba(233, 30, 99, 0.3));
+      pointer-events: none;
+      animation: beatPulse 3.5s ease-in-out infinite;
+      z-index: 2;
+    }
+    .beat-heart::before,
+    .beat-heart::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(233, 30, 99, 0.15);
+    }
+    .beat-heart::before {
+      top: 0;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+    .beat-heart::after {
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    @keyframes beatPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.15;
+      }
+      50% {
+        transform: scale(1.15);
+        opacity: 0.3;
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+      h2 {
+        font-size: 1.7rem;
+        margin-bottom: 2rem;
+      }
+      #messageContainer {
+        font-size: 1.35rem;
+        min-height: 90px;
+      }
+      button {
+        font-size: 1.05rem;
+        padding: 0.55rem 1.6rem;
+        margin: 0 10px;
+        min-width: 80px;
+      }
+      #container {
+        padding: 2rem 2.5rem 2.2rem;
+        max-width: 95%;
+      }
+      #emoji {
+        font-size: 2.8rem;
+        margin-bottom: 1rem;
+      }
+      #soundToggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        top: 15px;
+        right: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="container" role="main" aria-label="Romantic message for Alsa">
+    <div id="initialQuestion">
+      <div id="emoji" aria-live="polite" aria-atomic="true">😢</div>
+      <h1>Do you like me?</h1>
+      <div>
+        <button id="yesBtn" aria-label="Yes I like you">Yes ❤️</button>
+        <button id="noBtn" aria-label="No I don't like you">No 💔</button>
+      </div>
+      <p id="noMessage" style="margin-top: 1rem; color: #ac1457; font-weight: 600;" aria-live="polite" aria-atomic="true"></p>
+    </div>
+
+    <div id="romanticMessage" class="hidden" tabindex="-1" aria-live="polite" aria-atomic="true">
+      <h2>Alsa,</h2>
+      <div id="messageContainer" aria-label="Romantic lines"></div>
+    </div>
+  </div>
+
+  <button id="soundToggle" aria-label="Toggle background music">🔈</button>
+
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2021/09/06/audio_269a6fcf25.mp3?filename=romantic-piano-11241.mp3" loop preload="auto"></audio>
+
+<script>
+  // Elements
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const noMessage = document.getElementById('noMessage');
+  const initialQuestion = document.getElementById('initialQuestion');
+  const romanticMessage = document.getElementById('romanticMessage');
+  const container = document.getElementById('container');
+  const emoji = document.getElementById('emoji');
+  const soundToggle = document.getElementById('soundToggle');
+  const bgMusic = document.getElementById('bgMusic');
+  const messageContainer = document.getElementById('messageContainer');
+
+  // Replies for No clicks
+  const noReplies = [
+    "Think again... 💭",
+    "Please, be honest with your heart... 💓",
+    "Come on, I’m worth it! 😊",
+    "Just try to say YES! 🙏",
+    "Don't be shy, accept the love! 💕",
+    "I’ll be waiting forever... ⏳",
+    "You make my world brighter. 🌟",
+    "It’s okay to say YES. 💗",
+    "My heart won't give up on you! ❤️‍🔥"
+  ];
+  let noClickCount = 0;
+
+  noBtn.addEventListener('click', () => {
+    const reply = noReplies[noClickCount % noReplies.length];
+    noMessage.textContent = reply;
+    noClickCount++;
+
+    // Slight shake effect on No button on click
+    noBtn.style.animation = 'shake 0.3s';
+    noBtn.addEventListener('animationend', () => {
+      noBtn.style.animation = '';
+    }, { once: true });
+
+    // Emoji changes to pleading or sad on no
+    emoji.textContent = '🥺';
+    setTimeout(() => {
+      emoji.textContent = '😢';
+    }, 1200);
+  });
+
+  // Romantic lines to cycle through after Yes click
+  const romanticLines = [
+    "Every time I see you, my heart skips a beat...",
+    "You light up my world in ways I can't describe.",
+    "Your smile brightens even my darkest days.",
+    "I imagine a future full of laughter and love with you.",
+    "You’re the sweetest melody in my life’s soundtrack.",
+    "With you, every moment feels like magic.",
+    "I like you more than words could ever say. ❤️",
+    "Your presence makes everything better.",
+    "I’m constantly daydreaming about us together.",
+    "You’ve captured my heart completely."
+  ];
+  let lineIndex = 0;
+  let cycleInterval;
+
+  // Show next romantic line with fadeInOut animation
+  function showNextLine() {
+    messageContainer.innerHTML = '';
+    const p = document.createElement('p');
+    p.classList.add('messageLine', 'fadeInOut');
+    p.textContent = romanticLines[lineIndex];
+    messageContainer.appendChild(p);
+
+    lineIndex = (lineIndex + 1) % romanticLines.length;
+  }
+
+  yesBtn.addEventListener('click', () => {
+    // Hide initial question, show romantic message
+    initialQuestion.classList.add('hidden');
+    romanticMessage.classList.remove('hidden');
+    container.classList.add('active');
+
+    // Focus for accessibility
+    romanticMessage.focus();
+
+    // Change emoji to happy love
+    emoji.textContent = '😍';
+    emoji.style.marginBottom = '1.5rem';
+    emoji.style.transform = 'scale(1.3)';
+    setTimeout(() => (emoji.style.transform = 'scale(1)'), 1000);
+
+    // Start heart animations intensified and background beats
+    heartIntervalIncrease();
+    createBackgroundBeatHearts();
+    playMusic();
+
+    // Start cycling romantic text lines every 5 seconds (matches animation length)
+    showNextLine();
+    cycleInterval = setInterval(showNextLine, 5000);
+  });
+
+  // Function to create floating foreground hearts
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+
+    let size = Math.random() * 30 + 10;
+    heart.style.width = size + 'px';
+    heart.style.height = size + 'px';
+
+    heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+
+    heart.style.opacity = (Math.random() * 0.5 + 0.4).toFixed(2);
+
+    document.body.appendChild(heart);
+
+    heart.addEventListener('animationend', () => {
+      heart.remove();
+    });
+  }
+
+  // Background floating smaller hearts
+  function createBgHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('bg-heart');
+
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+
+    let size = Math.random() * 15 + 10;
+    heart.style.width = size + 'px';
+    heart.style.height = size + 'px';
+
+    heart.style.animationDuration = (Math.random() * 8 + 12) + 's';
+    heart.style.opacity = (Math.random() * 0.4 + 0.3).toFixed(2);
+
+    document.body.appendChild(heart);
+    heart.addEventListener('animationend', () => heart.remove());
+  }
+
+  // Background beating hearts - large faint hearts beating
+  let beatHeartsCreated = false;
+  function createBackgroundBeatHearts() {
+    if (beatHeartsCreated) return; // prevent duplicates
+    beatHeartsCreated = true;
+
+    // Create 6 large beat hearts placed around the screen with different sizes and positions
+    for (let i = 0; i < 6; i++) {
+      const bHeart = document.createElement('div');
+      bHeart.classList.add('beat-heart');
+      const size = 120 + Math.random() * 100;
+      bHeart.style.width = bHeart.style.height = size + 'px';
+
+      // Random position around screen margins
+      bHeart.style.top = (20 + Math.random() * 60) + '%';
+      bHeart.style.left = (10 + Math.random() * 80) + '%';
+
+      // Slightly different animation delays for beating effect
+      bHeart.style.animationDelay = (i * 0.6) + 's';
+
+      document.body.appendChild(bHeart);
+    }
+  }
+
+  let heartInterval;
+  let bgHeartInterval;
+
+  // Intensify hearts floating up rapidly
+  function heartIntervalIncrease() {
+    if (heartInterval) clearInterval(heartInterval);
+    if (bgHeartInterval) clearInterval(bgHeartInterval);
+
+    heartInterval = setInterval(createHeart, 150);
+    bgHeartInterval = setInterval(createBgHeart, 500);
+
+    // Burst effect
+    setTimeout(() => {
+      for (let i = 0; i < 20; i++) {
+        setTimeout(createHeart, i * 100);
+      }
+    }, 2000);
+  }
+
+  // Background music control
+  let musicPlaying = false;
+
+  function playMusic() {
+    if (!musicPlaying) {
+      bgMusic.volume = 0.3;
+      const playPromise = bgMusic.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          bgMusic.muted = true;
+        });
+      }
+      musicPlaying = true;
+      soundToggle.textContent = '🔊';
+      soundToggle.setAttribute('aria-label', 'Mute background music');
+    }
+  }
+
+  function pauseMusic() {
+    bgMusic.pause();
+    musicPlaying = false;
+    soundToggle.textContent = '🔈';
+    soundToggle.setAttribute('aria-label', 'Unmute background music');
+  }
+
+  soundToggle.addEventListener('click', () => {
+    if (musicPlaying) {
+      pauseMusic();
+    } else {
+      bgMusic.muted = false;
+      playMusic();
+    }
+  });
+
+  // Start small ambient hearts on page load
+  window.addEventListener('load', () => {
+    bgHeartInterval = setInterval(createBgHeart, 1000);
+  });
+
+  // Shake animation keyframes for No button
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.textContent = `
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-8px); }
+      40%, 60% { transform: translateX(8px); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>
