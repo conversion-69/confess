@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zenthor Betting</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&family=Poppins:wght@400;600&display=swap');
+
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #120f2f, #3a0742);
+    font-family: 'Poppins', sans-serif;
+    color: #f0f0f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    user-select: none;
+  }
+  a, button {
+    font-family: 'Orbitron', monospace;
+    cursor: pointer;
+    outline: none;
+    border: none;
+  }
+  button:focus, input:focus {
+    outline: 2px solid #f39c12;
+  }
+  h1, h2, h3 {
+    font-family: 'Orbitron', monospace;
+    margin: 0 0 10px 0;
+    color: #ffd600;
+  }
+
+  /* Container and general sections */
+  #app {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 10px 40px 10px;
+  }
+
+  /* Login Screen */
+  #login-screen {
+    max-width: 400px;
+    margin: 60px auto;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 20px #ffae00cc;
+    text-align: center;
+  }
+  #login-screen h1 {
+    color: #ff9f00;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px #ff9f00;
+  }
+  #login-screen input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 2px solid #ff9f00;
+    background: transparent;
+    color: #fff;
+    font-size: 1.1rem;
+    transition: border-color 0.3s ease;
+  }
+  #login-screen input[type="text"]:focus {
+    border-color: #ffd600;
+  }
+  #login-screen button {
+    margin-top: 20px;
+    background: #ff9f00;
+    padding: 12px 25px;
+    border-radius: 10px;
+    color: #200800;
+    font-weight: 700;
+    font-size: 1.2rem;
+    box-shadow: 0 0 15px #ffae00cc;
+    transition: background 0.3s ease;
+  }
+  #login-screen button:hover {
+    background: #ffd600;
+    box-shadow: 0 0 25px #ffd600cc;
+  }
+
+  /* Main dashboard */
+  #main-dashboard {
+    display: none;
+  }
+  #header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  #header h1 {
+    font-size: 2.8rem;
+    text-shadow: 0 0 15px #f9d71c, 0 0 30px #ffae00cc;
+  }
+  #balance-container {
+    margin-top: 5px;
+    font-size: 1.25rem;
+    color: #ffd600;
+    text-shadow: 0 0 8px #ffbf00bb;
+  }
+  #username-display {
+    font-weight: 600;
+    color: #fff;
+    font-size: 1.1rem;
+    margin-top: 4px;
+    opacity: 0.8;
+  }
+
+  /* Navigation */
+  #nav-games {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    background: #4a007e;
+    color: #ffd600;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px #7c00b9cc;
+    transition: background 0.4s, box-shadow 0.4s;
+    user-select: none;
+  }
+  .nav-btn:hover,
+  .nav-btn.active {
+    background: #ffb500;
+    color: #2b0200;
+    box-shadow: 0 0 30px #ffb500cc;
+  }
+
+  /* Games container */
+  #games-container > div {
+    display: none;
+  }
+  #games-container > div.active {
+    display: block;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    cursor: pointer;
+    background: #ff9f00;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #290f00;
+    border: 2px solid transparent;
+    box-shadow: 0 0 10px #ffae00cc;
+    transition: all 0.3s ease;
+    user-select: none;
+    margin-top: 10px;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #ffd600;
+    box-shadow: 0 0 20px #ffd600cc;
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Input fields for betting */
+  .bet-input {
+    width: 120px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid #ff9f00;
+    background: transparent;
+    color: #fff;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  .bet-input:focus {
+    border-color: #ffd600;
+  }
+
+  /* Result display */
+  .result-message {
+    margin-top: 15px;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-align: center;
+    user-select: none;
+  }
+  .result-win {
+    color: #0aff94;
+    text-shadow: 0 0 12px #0aff94cc;
+  }
+  .result-lose {
+    color: #ff3d3d;
+    text-shadow: 0 0 12px #ff3d3dcc;
+  }
+
+  /* Smooth button press animation */
+  button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  /* Scroll container for plinko */
+  #plinko-board {
+    margin: 0 auto;
+    width: 320px;
+    height: 440px;
+    position: relative;
+    background: linear-gradient(180deg, #0f023f, #3f0078);
+    border-radius: 12px;
+    box-shadow: 0 0 25px #7c00b9cc inset;
+    user-select: none;
+  }
+  /* Pegs and slots for plinko */
+  .peg-row {
+    display: flex;
+    justify-content: center;
+  }
+  .peg {
+    width: 14px;
+    height: 14px;
+    background: #ffd600;
+    border-radius: 50%;
+    margin: 5px 12px;
+    box-shadow: 0 0 8px #ffd600cc;
+  }
+  .ball {
+    width: 22px;
+    height: 22px;
+    background: #ff9f00;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10px;
+    box-shadow: 0 0 15px #ff9f00cc;
+  }
+
+  /* Slots at bottom */
+  #plinko-slots {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 14px;
+  }
+  .slot {
+    width: 40px;
+    height: 40px;
+    background: #6a0085cc;
+    border-radius: 8px;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    font-weight: 700;
+    user-select: none;
+    box-shadow: 0 0 10px #a034e6cc;
+    transition: background 0.3s;
+  }
+  .slot.win {
+    background: #0aff94cc;
+    box-shadow: 0 0 25px #0aff94cc;
+  }
+
+  /* Dice */
+  #dice-game {
+    text-align: center;
+  }
+  #dice-container {
+    margin: 20px auto 10px;
+    font-size: 150px;
+    user-select: none;
+    color: #ffd600;
+    text-shadow: 0 0 12px #f7de00cc;
+    transition: transform 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  }
+
+  /* Coin flip */
+  #coin-flip-game {
+    text-align: center;
+  }
+  #coin-coin {
+    margin: 20px auto;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffb500, #ff8200);
+    box-shadow: 0 0 30px #ff9d00cc;
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+    transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  }
+  #coin-coin .face {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    top: 30px;
+    left: 30px;
+    border-radius: 50%;
+    background: #fff3a3;
+    line-height: 60px;
+    font-weight: 900;
+    font-size: 3rem;
+    color: #b47c00;
+    text-align: center;
+    user-select: none;
+    pointer-events: none;
+    box-shadow: inset 0 0 6px #b47c00cc;
+  }
+
+  /* Mines (Dragon Tower) */
+  #mines-game {
+    text-align: center;
+  }
+  #mines-settings {
+    margin-bottom: 10px;
+  }
+  #mines-grid {
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 56px);
+    grid-template-rows: repeat(5, 56px);
+    gap: 8px;
+    justify-content: center;
+    user-select: none;
+  }
+  .mine-cell {
+    width: 56px;
+    height: 56px;
+    background: #52006a;
+    border-radius: 8px;
+    box-shadow: 0 0 15px #9a00e0cc inset;
+    color: transparent;
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 56px;
+    cursor: pointer;
+    transition: background 0.4s, color 0.4s;
+    user-select: none;
+  }
+  .mine-cell.revealed {
+    background: #0aff9477;
+    color: #004310;
+    box-shadow: 0 0 12px #0aff94cc;
+    cursor: default;
+  }
+  .mine-cell.mine {
+    background: #ff3d3dcc;
+    color: #330000;
+    box-shadow: 0 0 25px #ff3d3dcc;
+  }
+
+  /* Limbo */
+  #limbo-game {
+    text-align: center;
+  }
+  #limbo-graph {
+    margin: 20px auto 20px;
+    width: 320px;
+    height: 120px;
+    background: #22004e;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #7c00b9cc inset;
+    position: relative;
+    overflow: hidden;
+  }
+  #limbo-line {
+    fill: none;
+    stroke: #ffd600;
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 6px #ffd600cc);
+  }
+  #limbo-info {
+    font-size: 1.2rem;
+    color: #ffd600;
+    font-weight: 700;
+  }
+
+  /* Pump Game */
+  #pump-game {
+    text-align: center;
+  }
+  #pump-counter {
+    font-size: 4rem;
+    font-weight: 900;
+    margin: 35px 0 20px;
+    color: #ffbb00;
+    text-shadow: 0 0 18px #ffbb0088;
+  }
+  #pump-btns {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+  }
+  #pump-start, #pump-cashout {
+    padding: 15px 30px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    border-radius: 8px;
+    background: #ff9f00;
+    color: #290f00;
+    box-shadow: 0 0 15px #ffae00cc;
+    text-transform: uppercase;
+    transition: background 0.3s;
+    cursor: pointer;
+  }
+  #pump-start:hover:not(:disabled), #pump-cashout:hover:not(:disabled) {
+    background: #ffd600;
+    box-shadow: 0 0 30px #ffd600cc;
+  }
+  #pump-start:disabled, #pump-cashout:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  /* Animations */
+  @keyframes coinFlipSpin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(1440deg); }
+  }
+  @keyframes diceRollAnim {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(1080deg); }
+  }
+
+  /* Scroll bar removal for plinko board */
+  #plinko-board::-webkit-scrollbar {
+      display: none;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <h1>Welcome to Zenthor Betting</h1>
+    <p style="margin-bottom: 25px; font-size: 1rem; opacity: 0.75;">
+      Enter your username to start with $5000 balance and start gambling!
+    </p>
+    <input type="text" id="username-input" placeholder="Enter your username" maxlength="20" autocomplete="off" />
+    <button id="login-btn">Start Playing</button>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="main-dashboard">
+    <div id="header">
+      <h1>Zenthor Betting</h1>
+      <div id="balance-container">Balance: $<span id="balance">0</span></div>
+      <div id="username-display"></div>
+    </div>
+
+    <nav id="nav-games" aria-label="Game navigation">
+      <button class="nav-btn active" data-game="dice">Dice</button>
+      <button class="nav-btn" data-game="plinko">Plinko</button>
+      <button class="nav-btn" data-game="mines">Mines</button>
+      <button class="nav-btn" data-game="limbo">Limbo</button>
+      <button class="nav-btn" data-game="pump">Pump</button>
+      <button class="nav-btn" data-game="coinflip">Coin Flip</button>
+    </nav>
+
+    <section id="games-container">
+      <!-- Dice Game -->
+      <div id="dice-game" class="game active" role="tabpanel" aria-live="polite" aria-label="Dice game">
+        <h2>Dice Game</h2>
+        <div>
+          <label for="dice-bet">Bet Amount ($): </label>
+          <input type="number" id="dice-bet" class="bet-input" min="1" step="1" />
+          <button id="dice-roll-btn" class="btn-primary">Roll Dice</button>
+        </div>
+        <div id="dice-container">🎲</div>
+        <div id="dice-result" class="result-message"></div>
+      </div>
+
+      <!-- Plinko Game -->
+      <div id="plinko-game" class="game" role="tabpanel" aria-live="polite" aria-label="Plinko game">
+        <h2>Plinko</h2>
+        <div>
+          <label for="plinko-bet">Bet Amount ($): </label>
+          <input type="number" id="plinko-bet" class="bet-input" min="1" step="1" />
+          <button id="plinko-drop-btn" class="btn-primary">Drop Ball</button>
+        </div>
+        <div id="plinko-board" aria-label="Plinko board" role="img" aria-live="off">
+          <!-- Pegs and ball rendered by JS -->
+        </div>
+        <div id="plinko-slots"></div>
+        <div id="plinko-result" class="result-message"></div>
+      </div>
+
+      <!-- Mines (Dragon Tower) Game -->
+      <div id="mines-game" class="game" role="tabpanel" aria-live="polite" aria-label="Mines game">
+        <h2>Mines (Dragon Tower)</h2>
+        <div id="mines-settings">
+          <label for="mines-bet">Bet Amount ($): </label>
+          <input type="number" id="mines-bet" class="bet-input" min="1" step="1" />
+          <label for="mines-count">Number of Mines: </label>
+          <select id="mines-count" aria-label="Select number of mines">
+            <option value="3">3 Mines</option>
+            <option value="5" selected>5 Mines</option>
+            <option value="7">7 Mines</option>
+            <option value="10">10 Mines</option>
+            <option value="15">15 Mines</option>
+          </select>
+          <button id="mines-start-btn" class="btn-primary">Start Game</button>
+        </div>
+        <div id="mines-grid" aria-label="Mines game grid" role="grid" tabindex="0">
+          <!-- Cells rendered by JS -->
+        </div>
+        <div id="mines-result" class="result-message"></div>
+        <button id="mines-collect-btn" class="btn-primary" style="display:none;">Collect Winnings</button>
+      </div>
+
+      <!-- Limbo Game -->
+      <div id="limbo-game" class="game" role="tabpanel" aria-live="polite" aria-label="Limbo game">
+        <h2>Limbo</h2>
+        <div>
+          <label for="limbo-bet">Bet Amount ($): </label>
+          <input type="number" id="limbo-bet" class="bet-input" min="1" step="1" />
+          <button id="limbo-start-btn" class="btn-primary">Start Round</button>
+          <button id="limbo-cashout-btn" class="btn-primary" disabled>Cash Out</button>
+        </div>
+        <div id="limbo-info">Multiplier: <span id="limbo-multiplier">1.00x</span></div>
+        <div id="limbo-graph" aria-hidden="true">
+          <svg width="320" height="120" viewBox="0 0 320 120" aria-hidden="true">
+            <polyline id="limbo-line" points="0,110 320,110"></polyline>
+          </svg>
+        </div>
+        <div id="limbo-result" class="result-message"></div>
+      </div>
+
+      <!-- Pump Game -->
+      <div id="pump-game" class="game" role="tabpanel" aria-live="polite" aria-label="Pump game">
+        <h2>Pump</h2>
+        <div>
+          <label for="pump-bet">Bet Amount ($): </label>
+          <input type="number" id="pump-bet" class="bet-input" min="1" step="1" />
+        </div>
+        <div id="pump-counter">1.00x</div>
+        <div id="pump-btns">
+          <button id="pump-start" class="btn-primary">Start</button>
+          <button id="pump-cashout" class="btn-primary" disabled>Cash Out</button>
+        </div>
+        <div id="pump-result" class="result-message"></div>
+      </div>
+
+      <!-- Coin Flip -->
+      <div id="coinflip-game" class="game" role="tabpanel" aria-live="polite" aria-label="Coin Flip game">
+        <h2>Coin Flip</h2>
+        <div>
+          <label for="coinflip-bet">Bet Amount ($): </label>
+          <input type="number" id="coinflip-bet" class="bet-input" min="1" step="1" />
+        </div>
+        <div>
+          <label>
+            <input type="radio" name="coinflip-choice" value="heads" checked /> Heads
+          </label>
+          <label style="margin-left: 20px;">
+            <input type="radio" name="coinflip-choice" value="tails" /> Tails
+          </label>
+        </div>
+        <button id="coinflip-flip-btn" class="btn-primary">Flip Coin</button>
+        <div id="coin-coin" aria-hidden="true" title="Coin toss animation">
+          <div class="face">H</div>
+        </div>
+        <div id="coinflip-result" class="result-message"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  // Utils
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const formatNumber = n => n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+  // Storage keys
+  const STORAGE_USER_PREFIX = 'zenthor_user_';
+
+  // Initial balance for new users
+  const INITIAL_BALANCE = 5000;
+
+  // Cached DOM
+  const loginScreen = document.getElementById('login-screen');
+  const usernameInput = document.getElementById('username-input');
+  const loginBtn = document.getElementById('login-btn');
+
+  const mainDashboard = document.getElementById('main-dashboard');
+  const balanceDisplay = document.getElementById('balance');
+  const usernameDisplay = document.getElementById('username-display');
+  const navButtons = document.querySelectorAll('#nav-games .nav-btn');
+  const gamesContainer = document.getElementById('games-container');
+
+  // State
+  let currentUser = null;
+  let userData = null;
+
+  // Load user data
+  function loadUser(username) {
+    const raw = localStorage.getItem(STORAGE_USER_PREFIX + username);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Save user data
+  function saveUser(username, data) {
+    localStorage.setItem(STORAGE_USER_PREFIX + username, JSON.stringify(data));
+  }
+
+  // Update Balance Display
+  function updateBalanceDisplay() {
+    balanceDisplay.textContent = formatNumber(userData.balance);
+  }
+
+  // Change Game View
+  function changeGame(gameName) {
+    navButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.game === gameName);
+    });
+    Array.from(gamesContainer.children).forEach(div => {
+      div.classList.toggle('active', div.id === gameName + '-game');
+    });
+  }
+
+  // Show Message (generic)
+  function showMessage(container, message, isWin) {
+    container.textContent = message;
+    container.classList.remove('result-win', 'result-lose');
+    if (message) {
+      container.classList.add(isWin ? 'result-win' : 'result-lose');
+    }
+  }
+
+  // ---------------------------
+  // LOGIN & INITIALIZE
+  // ---------------------------
+
+  loginBtn.addEventListener('click', () => {
+    const username = usernameInput.value.trim().toLowerCase();
+    if (!username || !/^[a-z0-9_-]{3,20}$/.test(username)) {
+      alert('Please enter a valid username (3-20 chars, lowercase letters, numbers, underscore or dash).');
+      return;
+    }
+    currentUser = username;
+
+    let data = loadUser(currentUser);
+    if (!data) {
+      data = {balance: INITIAL_BALANCE};
+      saveUser(currentUser, data);
+    }
+    userData = data;
+
+    loginScreen.style.display = 'none';
+    mainDashboard.style.display = 'block';
+    usernameDisplay.textContent = `Player: ${currentUser}`;
+    updateBalanceDisplay();
+  });
+
+  // Navigation buttons
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      changeGame(btn.dataset.game);
+      clearGameResults();
+    });
+  });
+
+  // Clear game results & inputs on switching games
+  function clearGameResults() {
+    // Dice
+    document.getElementById('dice-result').textContent = '';
+    document.getElementById('dice-container').textContent = '🎲';
+    document.getElementById('dice-bet').value = '';
+
+    // Plinko
+    document.getElementById('plinko-result').textContent = '';
+    document.getElementById('plinko-bet').value = '';
+    plinkoReset();
+
+    // Mines
+    document.getElementById('mines-result').textContent = '';
+    document.getElementById('mines-bet').value = '';
+    document.getElementById('mines-collect-btn').style.display = 'none';
+    minesReset();
+
+    // Limbo
+    document.getElementById('limbo-result').textContent = '';
+    document.getElementById('limbo-bet').value = '';
+    document.getElementById('limbo-multiplier').textContent = '1.00x';
+    limboReset();
+
+    // Pump
+    document.getElementById('pump-result').textContent = '';
+    document.getElementById('pump-bet').value = '';
+    pumpReset();
+
+    // Coin Flip
+    document.getElementById('coinflip-result').textContent = '';
+    document.getElementById('coinflip-bet').value = '';
+    document.querySelector('input[name="coinflip-choice"][value="heads"]').checked = true;
+    coinFlipReset();
+  }
+
+  // ---------------------------
+  // DICE GAME
+  // ---------------------------
+  const diceBetInput = document.getElementById('dice-bet');
+  const diceRollBtn = document.getElementById('dice-roll-btn');
+  const diceContainer = document.getElementById('dice-container');
+  const diceResult = document.getElementById('dice-result');
+
+  function rollDice() {
+    return Math.floor(Math.random() * 6) + 1;
+  }
+
+  diceRollBtn.addEventListener('click', async () => {
+    let bet = Number(diceBetInput.value);
+    if (!bet || bet < 1) {
+      alert('Please enter a valid bet amount.');
+      return;
+    }
+    if (bet > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+    diceRollBtn.disabled = true;
+    diceResult.textContent = '';
+    diceContainer.style.transition = 'transform 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+    diceContainer.style.transform = 'rotate(1080deg)';
+
+    await sleep(900);
+    diceContainer.style.transition = '';
+    diceContainer.style.transform = '';
+
+    const diceRoll = rollDice();
+    const diceFaces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+    diceContainer.textContent = diceFaces[diceRoll - 1];
+
+    // Determine win / lose: Harder odds - win only if diceRoll is 6 (16.7%)
+    if (diceRoll === 6) {
+      const payout = bet * 5; // payout 5x to balance odds difficulty
+      userData.balance += payout;
+      saveUser(currentUser, userData);
+      updateBalanceDisplay();
+      showMessage(diceResult, `🎉 You rolled a 6 and won $${formatNumber(payout)}!`, true);
+    } else {
+      userData.balance -= bet;
+      saveUser(currentUser, userData);
+      updateBalanceDisplay();
+      showMessage(diceResult, `You rolled a ${diceRoll}. You lost $${formatNumber(bet)}.`, false);
+    }
+    diceRollBtn.disabled = false;
+  });
+
+  // ---------------------------
+  // PLINKO GAME
+  // ---------------------------
+  const plinkoBetInput = document.getElementById('plinko-bet');
+  const plinkoDropBtn = document.getElementById('plinko-drop-btn');
+  const plinkoBoard = document.getElementById('plinko-board');
+  const plinkoSlots = document.getElementById('plinko-slots');
+  const plinkoResult = document.getElementById('plinko-result');
+
+  // Prepare plinko board pegs structure
+  const PLINKO_ROWS = 12;
+  const PLINKO_SLOTS = 7;
+
+  // Each slot's payout multiplier (randomized but mostly low with some high)
+  function generatePlinkoPayouts() {
+    const basePayouts = [0,0,0,1,2,5,0];
+    // Shuffle and slightly randomize multipliers
+    const payouts = basePayouts.map(v => v + (Math.random() < 0.14 ? Math.floor(Math.random()*7) : 0));
+    return payouts;
+  }
+
+  // Draw pegs dynamically
+  function plinkoDrawPegs() {
+    plinkoBoard.innerHTML = '';
+    for (let r=0; r<PLINKO_ROWS; r++) {
+      const row = document.createElement('div');
+      row.className = 'peg-row';
+      row.style.justifyContent = (r%2 === 0) ? 'center' : 'flex-start';
+      for (let c=0; c<PLINKO_SLOTS; c++) {
+        if ((r%2 === 0 && c === PLINKO_SLOTS-1) || (r%2 === 1 && c === 0)) continue;
+        const peg = document.createElement('div');
+        peg.className = 'peg';
+        row.appendChild(peg);
+      }
+      plinkoBoard.appendChild(row);
+    }
+  }
+
+  // Render slots
+  function plinkoRenderSlots(payouts) {
+    plinkoSlots.innerHTML = '';
+    for (let i=0; i<PLINKO_SLOTS; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.textContent = (payouts[i] > 0) ? `x${payouts[i]}` : '-';
+      plinkoSlots.appendChild(slot);
+    }
+  }
+
+  // Variables for plinko game
+  let plinkoBall = null;
+  let plinkoPayouts = [];
+
+  plinkoDrawPegs();
+
+  plinkoReset();
+  function plinkoReset() {
+    if (plinkoBall) {
+      plinkoBall.remove();
+      plinkoBall = null;
+    }
+    plinkoResult.textContent = '';
+    plinkoPayouts = generatePlinkoPayouts();
+    plinkoRenderSlots(plinkoPayouts);
+    plinkoDropBtn.disabled = false;
+  }
+
+  function plinkoDropBall() {
+    const bet = Number(plinkoBetInput.value);
+    if (!bet || bet < 1) {
+      alert('Please enter a valid bet amount.');
+      return;
+    }
+    if (bet > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+    plinkoDropBtn.disabled = true;
+    if (plinkoBall) {
+      plinkoBall.remove();
+      plinkoBall = null;
+    }
+
+    plinkoBall = document.createElement('div');
+    plinkoBall.className = 'ball';
+    plinkoBoard.appendChild(plinkoBall);
+
+    // Animate ball drop simulation by random walk
+    // Peg rows: 12, slots 7 range: ball moves left or right randomly each row
+    let position = Math.floor(PLINKO_SLOTS / 2);
+    let path = [position];
+
+    // Animate down each row with timed delays
+    let step = 0;
+    const totalSteps = PLINKO_ROWS;
+
+    function stepDrop() {
+      if (step >= totalSteps) {
+        endDrop();
+        return;
+      }
+      // Random move left (-1), stay(0), or right(+1)
+      let move = (Math.random() < 0.5) ? (Math.random() < 0.5 ? -1 : 1) : 0;
+      position = clamp(position + move, 0, PLINKO_SLOTS - 1);
+      path.push(position);
+
+      // Update ball horizontal position (%) to slot index
+      const boardWidth = plinkoBoard.clientWidth;
+      const slotWidth = boardWidth / (PLINKO_SLOTS);
+      plinkoBall.style.transition = 'top 0.3s linear, left 0.3s linear';
+      plinkoBall.style.top = `${(step + 1) * (plinkoBoard.clientHeight / PLINKO_ROWS) - 25}px`;
+      plinkoBall.style.left = `${(position + 0.5) * slotWidth}px`;
+
+      step++;
+      setTimeout(stepDrop, 350);
+    }
+
+    function endDrop() {
+      const payoutMultiplier = plinkoPayouts[position];
+      if (payoutMultiplier > 0) {
+        const winAmount = bet * payoutMultiplier;
+        userData.balance += winAmount;
+        saveUser(currentUser, userData);
+        updateBalanceDisplay();
+        plinkoResult.textContent = `🎉 You won $${formatNumber(winAmount)} with multiplier x${payoutMultiplier}!`;
+        plinkoResult.className = 'result-message result-win';
+      } else {
+        userData.balance -= bet;
+        saveUser(currentUser, userData);
+        updateBalanceDisplay();
+        plinkoResult.textContent = `You lost $${formatNumber(bet)}. Better luck next time!`;
+        plinkoResult.className = 'result-message result-lose';
+      }
+      plinkoDropBtn.disabled = false;
+    }
+
+    // Reset ball start position
+    plinkoBall.style.top = '10px';
+    const boardWidth = plinkoBoard.clientWidth;
+    const slotWidth = boardWidth / (PLINKO_SLOTS);
+    plinkoBall.style.left = `${(Math.floor(PLINKO_SLOTS / 2) + 0.5) * slotWidth}px`;
+    stepDrop();
+  }
+  plinkoDropBtn.addEventListener('click', plinkoDropBall);
+
+  // ---------------------------
+  // MINES GAME
+  // ---------------------------
+  const minesBetInput = document.getElementById('mines-bet');
+  const minesCountSelect = document.getElementById('mines-count');
+  const minesStartBtn = document.getElementById('mines-start-btn');
+  const minesGrid = document.getElementById('mines-grid');
+  const minesResult = document.getElementById('mines-result');
+  const minesCollectBtn = document.getElementById('mines-collect-btn');
+
+  const MINES_GRID_SIZE = 5; // 5x5 grid = 25 cells
+  const MINES_TOTAL_CELLS = MINES_GRID_SIZE * MINES_GRID_SIZE;
+
+  let minesMinesPositions = [];
+  let minesRevealedSafeCells = 0;
+  let minesPlaying = false;
+  let minesBetAmount = 0;
+  let minesNumMines = 5;
+  let minesRevealedCells = [];
+  let minesCurrentReward = 0;
+
+  // Calculate payout multiplier for each safe step (progressive)
+  // Formula based on number of mines and revealed safe blocks
+  function minesMultiplier(step, mines) {
+    // Use a smooth curve so rewards increase with risk
+    const totalSafe = MINES_TOTAL_CELLS - mines;
+    if (step > totalSafe) return 1;
+    const base = 1 + (mines * 0.6);
+    return 1 + (step * (base / totalSafe));
+  }
+
+  function minesReset() {
+    minesGrid.innerHTML = '';
+    minesMinesPositions = [];
+    minesRevealedSafeCells = 0;
+    minesPlaying = false;
+    minesRevealedCells = [];
+    minesCurrentReward = 0;
+    minesResult.textContent = '';
+    minesCollectBtn.style.display = 'none';
+
+    // Create cells
+    for (let i = 0; i < MINES_TOTAL_CELLS; i++) {
+      let cell = document.createElement('div');
+      cell.className = 'mine-cell';
+      cell.setAttribute('data-index', i);
+      cell.setAttribute('role', 'button');
+      cell.setAttribute('tabindex', '0');
+      cell.setAttribute('aria-label', `Mine cell ${i + 1}`);
+      minesGrid.appendChild(cell);
+    }
+  }
+
+  function minesStartGame() {
+    if (minesPlaying) return;
+    minesNumMines = Number(minesCountSelect.value);
+    minesBetAmount = Number(minesBetInput.value);
+
+    if (!minesBetAmount || minesBetAmount < 1) {
+      alert('Please enter a valid bet amount.');
+      return;
+    }
+    if (minesBetAmount > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+    if (minesNumMines >= MINES_TOTAL_CELLS || minesNumMines < 1) {
+      alert('Invalid number of mines.');
+      return;
+    }
+    minesPlaying = true;
+    minesRevealedSafeCells = 0;
+    minesCurrentReward = minesBetAmount;
+    minesRevealedCells = [];
+    minesResult.textContent = '';
+    minesCollectBtn.style.display = 'inline-block';
+    minesStartBtn.disabled = true;
+    minesBetInput.disabled = true;
+    minesCountSelect.disabled = true;
+
+    // Deduct bet upfront
+    userData.balance -= minesBetAmount;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+
+    // Place mines randomly
+    minesMinesPositions = [];
+    while (minesMinesPositions.length < minesNumMines) {
+      const pos = Math.floor(Math.random() * MINES_TOTAL_CELLS);
+      if (!minesMinesPositions.includes(pos)) minesMinesPositions.push(pos);
+    }
+
+    // Reset all cells to initial state
+    Array.from(minesGrid.children).forEach(cell => {
+      cell.classList.remove('mine', 'revealed');
+      cell.style.color = 'transparent';
+      cell.textContent = '';
+      cell.style.backgroundColor = '';
+      cell.disabled = false;
+    });
+  }
+
+  function minesRevealCell(cell) {
+    if (!minesPlaying) return;
+    if (cell.classList.contains('revealed')) return;
+    const idx = Number(cell.getAttribute('data-index'));
+    // Check if mine
+    if (minesMinesPositions.includes(idx)) {
+      // Reveal mine and lose
+      cell.classList.add('mine', 'revealed');
+      minesPlaying = false;
+      minesResult.textContent = `💥 You hit a mine! You lost $${formatNumber(minesBetAmount)}.`;
+      minesResult.className = 'result-message result-lose';
+      minesCollectBtn.style.display = 'none';
+      minesStartBtn.disabled = false;
+      minesBetInput.disabled = false;
+      minesCountSelect.disabled = false;
+      saveUser(currentUser, userData);
+      updateBalanceDisplay();
+
+      // Reveal all mines
+      Array.from(minesGrid.children).forEach(c => {
+        const pos = Number(c.getAttribute('data-index'));
+        if (minesMinesPositions.includes(pos)) {
+          c.classList.add('mine', 'revealed');
+          c.textContent = '💣';
+          c.style.color = '#330000';
+          c.style.backgroundColor = '#ff3d3dcc';
+          c.disabled = true;
+        }
+        c.style.cursor = 'default';
+      });
+      return;
+    }
+    // Safe cell
+    cell.classList.add('revealed');
+    cell.textContent = '✓';
+    cell.style.color = '#004310';
+    cell.style.backgroundColor = '#0aff9477';
+    cell.style.boxShadow = '0 0 15px #0aff94cc';
+    cell.disabled = true;
+    minesRevealedSafeCells++;
+    minesCurrentReward = minesBetAmount * minesMultiplier(minesRevealedSafeCells, minesNumMines);
+    minesResult.textContent = `Safe! Current reward: $${formatNumber(minesCurrentReward)}`;
+    minesResult.className = 'result-message result-win';
+    saveUser(currentUser, userData);
+  }
+
+  // Collect the current winnings
+  function minesCollect() {
+    if (!minesPlaying) return;
+    userData.balance += minesCurrentReward;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+    minesResult.textContent = `💰 You collected $${formatNumber(minesCurrentReward)}!`;
+    minesResult.className = 'result-message result-win';
+    minesCollectBtn.style.display = 'none';
+    minesPlaying = false;
+    minesStartBtn.disabled = false;
+    minesBetInput.disabled = false;
+    minesCountSelect.disabled = false;
+    // Disable all remaining cells
+    Array.from(minesGrid.children).forEach(c => {
+      c.disabled = true;
+      c.style.cursor = 'default';
+    });
+  }
+
+  minesStartBtn.addEventListener('click', minesStartGame);
+  minesCollectBtn.addEventListener('click', minesCollect);
+  minesGrid.addEventListener('click', e => {
+    if (!minesPlaying) return;
+    if (!e.target.classList.contains('mine-cell')) return;
+    minesRevealCell(e.target);
+  });
+  minesGrid.addEventListener('keydown', e => {
+    if (!minesPlaying) return;
+    if (e.target.classList.contains('mine-cell') && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      minesRevealCell(e.target);
+    }
+  });
+
+  minesReset();
+
+  // ---------------------------
+  // LIMBO GAME
+  // ---------------------------
+
+  const limboBetInput = document.getElementById('limbo-bet');
+  const limboStartBtn = document.getElementById('limbo-start-btn');
+  const limboCashoutBtn = document.getElementById('limbo-cashout-btn');
+  const limboResult = document.getElementById('limbo-result');
+  const limboMultiplierDisplay = document.getElementById('limbo-multiplier');
+  const limboLine = document.getElementById('limbo-line');
+
+  let limboInterval = null;
+  let limboCurrentMultiplier = 1;
+  let limboMaxMultiplier = 0;
+  let limboRunning = false;
+  let limboBetAmount = 0;
+
+  function limboReset() {
+    limboStartBtn.disabled = false;
+    limboCashoutBtn.disabled = true;
+    limboResult.textContent = '';
+    limboMultiplierDisplay.textContent = '1.00x';
+    limboCurrentMultiplier = 1;
+    limboMaxMultiplier = 0;
+    limboRunning = false;
+    // Reset graph
+    limboLine.setAttribute('points', '0,110 320,110');
+  }
+
+  function limboStart() {
+    if (limboRunning) return;
+    const bet = Number(limboBetInput.value);
+    if (!bet || bet < 1) {
+      alert('Enter a valid bet amount.');
+      return;
+    }
+    if (bet > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+    limboBetAmount = bet;
+    userData.balance -= bet;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+
+    limboStartBtn.disabled = true;
+    limboCashoutBtn.disabled = false;
+    limboResult.textContent = '';
+    limboMultiplierDisplay.textContent = '1.00x';
+    limboCurrentMultiplier = 1;
+    limboRunning = true;
+
+    // Random crash multiplier between 1.5 and 8.0 (weighted to lower)
+    let crashPoint = 1.5 + Math.pow(Math.random(), 3) * 6.5; // more likely low multipliers
+
+    // Variables for the graph polyline points
+    let points = [];
+    const graphWidth = 320;
+    const graphHeight = 120;
+    const graphMaxX = graphWidth;
+    const graphMaxY = graphHeight;
+    let totalSteps = 60;
+    let step = 0;
+
+    const updateGraph = (mult) => {
+      // Convert multiplier to y coordinate (invert)
+      let y = Math.min(graphHeight - ((mult - 1) / 7) * graphHeight * 0.9, graphHeight);
+      y = Math.max(y, 15);
+      const x = (step / totalSteps) * graphWidth;
+      points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      limboLine.setAttribute('points', points.join(' '));
+    };
+
+    // Start with initial point
+    points = [`0,${graphHeight-10}`];
+
+    limboInterval = setInterval(() => {
+      if (!limboRunning) {
+        clearInterval(limboInterval);
+        return;
+      }
+      let stepSize = limboCurrentMultiplier < 2
+        ? 0.05
+        : 0.1 + Math.random() * 0.06;
+      limboCurrentMultiplier += stepSize;
+
+      limboCurrentMultiplier = Math.min(limboCurrentMultiplier, 20);
+      step++;
+
+      limboMultiplierDisplay.textContent = limboCurrentMultiplier.toFixed(2) + 'x';
+      updateGraph(limboCurrentMultiplier);
+
+      if (limboCurrentMultiplier >= crashPoint) {
+        // Crash - player loses bet
+        limboRunning = false;
+        limboCashoutBtn.disabled = true;
+        limboStartBtn.disabled = false;
+        limboResult.textContent = `💥 Crash at ${crashPoint.toFixed(2)}x. You lost $${formatNumber(limboBetAmount)}.`;
+        limboResult.className = 'result-message result-lose';
+      }
+      if (step >= totalSteps) {
+        // Just safety stop
+        clearInterval(limboInterval);
+      }
+    }, 120);
+  }
+
+  function limboCashout() {
+    if (!limboRunning) return;
+    limboRunning = false;
+    limboCashoutBtn.disabled = true;
+    limboStartBtn.disabled = false;
+
+    const cashoutAmount = limboBetAmount * limboCurrentMultiplier;
+    userData.balance += cashoutAmount;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+
+    limboResult.textContent = `💰 You cashed out at ${limboCurrentMultiplier.toFixed(2)}x and won $${formatNumber(cashoutAmount)}!`;
+    limboResult.className = 'result-message result-win';
+  }
+
+  limboStartBtn.addEventListener('click', limboStart);
+  limboCashoutBtn.addEventListener('click', limboCashout);
+
+  limboReset();
+
+  // ---------------------------
+  // PUMP GAME
+  // ---------------------------
+
+  const pumpBetInput = document.getElementById('pump-bet');
+  const pumpStartBtn = document.getElementById('pump-start');
+  const pumpCashoutBtn = document.getElementById('pump-cashout');
+  const pumpCounter = document.getElementById('pump-counter');
+  const pumpResult = document.getElementById('pump-result');
+
+  let pumpRunning = false;
+  let pumpMultiplier = 1.0;
+  let pumpBetAmount = 0;
+  let pumpTimer = null;
+  let pumpPumpTime = 0; // Time in ms when pump occurs
+
+  function pumpReset() {
+    pumpRunning = false;
+    pumpMultiplier = 1.0;
+    pumpBetAmount = 0;
+    pumpCounter.textContent = '1.00x';
+    pumpStartBtn.disabled = false;
+    pumpCashoutBtn.disabled = true;
+    pumpResult.textContent = '';
+    if (pumpTimer) {
+      clearInterval(pumpTimer);
+      pumpTimer = null;
+    }
+  }
+
+  function pumpStart() {
+    if (pumpRunning) return;
+    const bet = Number(pumpBetInput.value);
+    if (!bet || bet < 1) {
+      alert('Enter valid bet amount.');
+      return;
+    }
+    if (bet > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+    pumpBetAmount = bet;
+    userData.balance -= bet;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+
+    pumpRunning = true;
+    pumpMultiplier = 1.0;
+    pumpCounter.textContent = '1.00x';
+    pumpStartBtn.disabled = true;
+    pumpCashoutBtn.disabled = false;
+    pumpResult.textContent = '';
+
+    // Set random pump time between 3 and 8 seconds (in ms)
+    pumpPumpTime = Date.now() + (3000 + Math.random() * 5000);
+
+    pumpTimer = setInterval(() => {
+      if (!pumpRunning) {
+        clearInterval(pumpTimer);
+        return;
+      }
+      const now = Date.now();
+      // Increase multiplier exponentially, capped at ~20x max
+      pumpMultiplier += 0.02 + 0.02 * pumpMultiplier;
+      pumpMultiplier = Math.min(pumpMultiplier, 20);
+      pumpCounter.textContent = pumpMultiplier.toFixed(2) + 'x';
+
+      if (now >= pumpPumpTime) {
+        // Pump event - lose bet immediately
+        pumpRunning = false;
+        pumpStartBtn.disabled = false;
+        pumpCashoutBtn.disabled = true;
+        pumpResult.textContent = `💥 Pump exploded! You lost $${formatNumber(pumpBetAmount)}.`;
+        pumpResult.className = 'result-message result-lose';
+        clearInterval(pumpTimer);
+      }
+    }, 70);
+  }
+
+  function pumpCashout() {
+    if (!pumpRunning) return;
+    pumpRunning = false;
+    pumpStartBtn.disabled = false;
+    pumpCashoutBtn.disabled = true;
+    clearInterval(pumpTimer);
+
+    const winAmount = pumpBetAmount * pumpMultiplier;
+    userData.balance += winAmount;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+
+    pumpResult.textContent = `💰 You cashed out at ${pumpMultiplier.toFixed(2)}x and won $${formatNumber(winAmount)}!`;
+    pumpResult.className = 'result-message result-win';
+  }
+
+  pumpStartBtn.addEventListener('click', pumpStart);
+  pumpCashoutBtn.addEventListener('click', pumpCashout);
+
+  pumpReset();
+
+  // ---------------------------
+  // COIN FLIP
+  // ---------------------------
+  const coinFlipBetInput = document.getElementById('coinflip-bet');
+  const coinFlipFlipBtn = document.getElementById('coinflip-flip-btn');
+  const coinFlipResult = document.getElementById('coinflip-result');
+  const coinCoin = document.getElementById('coin-coin');
+  const coinFaces = {
+    heads: 'H',
+    tails: 'T'
+  };
+
+  let coinIsFlipping = false;
+
+  coinFlipFlipBtn.addEventListener('click', async () => {
+    if (coinIsFlipping) return;
+    const bet = Number(coinFlipBetInput.value);
+    if (!bet || bet < 1) {
+      alert('Enter valid bet amount.');
+      return;
+    }
+    if (bet > userData.balance) {
+      alert('Insufficient balance.');
+      return;
+    }
+    const choice = document.querySelector('input[name="coinflip-choice"]:checked').value;
+
+    coinIsFlipping = true;
+    coinFlipFlipBtn.disabled = true;
+    coinFlipResult.textContent = '';
+    userData.balance -= bet;
+    saveUser(currentUser, userData);
+    updateBalanceDisplay();
+    coinCoin.style.transition = 'transform 3s ease-in-out';
+    coinCoin.style.transform = 'rotateY(1440deg)';
+
+    await sleep(3000);
+
+    // Determine random flip result - 50/50
+    const result = (Math.random() < 0.5) ? 'heads' : 'tails';
+    coinCoin.style.transition = '';
+    coinCoin.style.transform = 'rotateY(0deg)';
+    coinCoin.querySelector('.face').textContent = coinFaces[result];
+
+    if (result === choice) {
+      const winAmount = bet * 2;
+      userData.balance += winAmount;
+      saveUser(currentUser, userData);
+      updateBalanceDisplay();
+      showMessage(coinFlipResult, `🎉 You won $${formatNumber(winAmount)}! It was ${result}.`, true);
+    } else {
+      showMessage(coinFlipResult, `You lost $${formatNumber(bet)}. It was ${result}.`, false);
+    }
+
+    coinIsFlipping = false;
+    coinFlipFlipBtn.disabled = false;
+  });
+
+  function coinFlipReset() {
+    coinCoin.querySelector('.face').textContent = 'H';
+    coinFlipResult.textContent = '';
+    coinFlipFlipBtn.disabled = false;
+    coinIsFlipping = false;
+  }
+
+  // ---------------------------
+  // Initialization
+  // ---------------------------
+  changeGame('dice');
+
+})();
+</script>
+</body>
+</html>
+
